@@ -1,6 +1,9 @@
 [package]
 name = "jincr"
-version = "0.1.0"
+version = "0.0.1"
 edition = "2024"
 
 [dependencies]
+chrono = "0.4.43"
+jvars = "0.1.0"
+serde_json = "1.0.149"
