@@ -8,6 +8,45 @@ pub struct Op {
     info: Option<String>,
 }
 
+impl Op {
+    pub fn builder() -> OpBuilder {
+        OpBuilder::default()
+    }
+}
+
+#[derive(Debug, Default)]
+pub struct OpBuilder {
+    path: Option<String>,
+    value: Option<Value>,
+    info: Option<String>,
+}
+
+impl OpBuilder {
+    pub fn path(mut self, path: impl ToString) -> Self {
+        self.path = Some(path.to_string());
+        self
+    }
+
+    pub fn value(mut self, value: impl Into<Value>) -> Self {
+        self.value = Some(value.into());
+        self
+    }
+
+    pub fn info(mut self, info: impl ToString) -> Self {
+        self.info = Some(info.to_string());
+        self
+    }
+
+    pub fn build(self) -> Op {
+        Op {
+            path: self.path,
+            value: self.value,
+            timestamp: chrono::Local::now(),
+            info: self.info,
+        }
+    }
+}
+
 pub fn document<I>(ops: I) -> Value
 where
     I: IntoIterator<Item = Op>,
@@ -78,6 +117,6 @@ mod tests {
             },
         ];
         let doc = document(ops);
-        println!("Final {doc:#?}");
+        assert_eq!(json!({"abc":{}}), doc);
     }
 }
