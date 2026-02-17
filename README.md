@@ -13,7 +13,7 @@ Every row in the document table is an incremental operation: add, delete or (for
 | info      | TEXT                     |
 
 ### Path is NULL
-The `value` must be non-NULL and this is snapshot
+The `value` must be non-NULL in that case. And this is a snapshot.
 
 ### Path is not NULL
 - if `value` is NULL delete the whole `path`

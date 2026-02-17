@@ -37,6 +37,20 @@ impl OpBuilder {
         self
     }
 
+    pub fn add(self, path: impl ToString, value: impl Into<Value>) -> Self {
+        self.path(path).value(value)
+    }
+
+    pub fn del(mut self, path: impl ToString) -> Self {
+        self.value = None;
+        self.path(path)
+    }
+
+    pub fn snapshot(mut self, value: impl Into<Value>) -> Self {
+        self.path = None;
+        self.value(value)
+    }
+
     pub fn build(self) -> Op {
         Op {
             path: self.path,
@@ -61,7 +75,7 @@ where
                 }
             }
             Some(ref path) => {
-                if let Some(target) = dbg!(jvars::get_mut(&mut result, path)) {
+                if let Some(target) = jvars::get_mut(&mut result, path) {
                     match op.value {
                         Some(new) => *target = new,
                         None => {
@@ -77,15 +91,6 @@ where
         println!("current: {result:?}");
     }
     result
-}
-
-pub fn snapshot(doc: Value) -> Op {
-    dbg!(Op {
-        path: None,
-        value: Some(doc),
-        timestamp: chrono::Local::now(),
-        info: None,
-    })
 }
 
 #[cfg(test)]
@@ -108,7 +113,12 @@ mod tests {
                 timestamp: chrono::Local::now(),
                 info: Some("assign num".to_string()),
             },
-            snapshot(json!({"abc":{"tag":"rust"}})),
+            Op {
+                path: None,
+                value: Some(json!({"abc":{"tag":"rust"}})),
+                timestamp: chrono::Local::now(),
+                info: Some("snapshot".to_string()),
+            },
             Op {
                 path: Some("abc.tag".to_string()),
                 value: None,
@@ -117,6 +127,20 @@ mod tests {
             },
         ];
         let doc = document(ops);
+        assert_eq!(json!({"abc":{}}), doc);
+    }
+
+    #[test]
+    fn build_operations_with_builder() {
+        let ops = [
+            Op::builder()
+                .add("", json!({"abc":true}))
+                .info("0th operation"),
+            Op::builder().add("num", 55).info("assign num"),
+            Op::builder().snapshot(json!({"abc":{"tag":"rust"}})),
+            Op::builder().del("abc.tag"),
+        ];
+        let doc = document(ops.into_iter().map(OpBuilder::build));
         assert_eq!(json!({"abc":{}}), doc);
     }
 }
