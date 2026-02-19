@@ -1,7 +1,16 @@
 use serde_json::Value;
 
 #[derive(Debug)]
+pub enum Kind {
+    Snap,
+    Replace,
+    Delete,
+    Add,
+}
+
+#[derive(Debug)]
 pub struct Op {
+    kind: Kind,
     path: Option<String>,
     value: Option<Value>,
     timestamp: chrono::DateTime<chrono::Local>,
@@ -9,13 +18,19 @@ pub struct Op {
 }
 
 impl Op {
-    pub fn builder() -> OpBuilder {
-        OpBuilder::default()
+    pub fn builder(kind: Kind) -> OpBuilder {
+        OpBuilder {
+            kind,
+            path: None,
+            value: None,
+            info: None,
+        }
     }
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct OpBuilder {
+    kind: Kind,
     path: Option<String>,
     value: Option<Value>,
     info: Option<String>,
@@ -53,6 +68,7 @@ impl OpBuilder {
 
     pub fn build(self) -> Op {
         Op {
+            kind: self.kind,
             path: self.path,
             value: self.value,
             timestamp: chrono::Local::now(),
@@ -88,7 +104,7 @@ where
                 }
             }
         }
-        println!("current: {result:?}");
+        tracing::trace!("current: {result:?}");
     }
     result
 }
@@ -102,24 +118,28 @@ mod tests {
     fn it_works() {
         let ops = [
             Op {
+                kind: Kind::Add,
                 path: Some("".to_string()),
                 value: Some(json!({"abc":true})),
                 timestamp: chrono::Local::now(),
                 info: Some("0th operation".to_string()),
             },
             Op {
+                kind: Kind::Add,
                 path: Some("num".to_string()),
                 value: Some(json!(55)),
                 timestamp: chrono::Local::now(),
                 info: Some("assign num".to_string()),
             },
             Op {
+                kind: Kind::Snap,
                 path: None,
                 value: Some(json!({"abc":{"tag":"rust"}})),
                 timestamp: chrono::Local::now(),
                 info: Some("snapshot".to_string()),
             },
             Op {
+                kind: Kind::Delete,
                 path: Some("abc.tag".to_string()),
                 value: None,
                 timestamp: chrono::Local::now(),
@@ -133,12 +153,12 @@ mod tests {
     #[test]
     fn build_operations_with_builder() {
         let ops = [
-            Op::builder()
+            Op::builder(Kind::Add)
                 .add("", json!({"abc":true}))
                 .info("0th operation"),
-            Op::builder().add("num", 55).info("assign num"),
-            Op::builder().snapshot(json!({"abc":{"tag":"rust"}})),
-            Op::builder().del("abc.tag"),
+            Op::builder(Kind::Add).add("num", 55).info("assign num"),
+            Op::builder(Kind::Snap).snapshot(json!({"abc":{"tag":"rust"}})),
+            Op::builder(Kind::Delete).del("abc.tag"),
         ];
         let doc = document(ops.into_iter().map(OpBuilder::build));
         assert_eq!(json!({"abc":{}}), doc);

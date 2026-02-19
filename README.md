@@ -1,23 +1,31 @@
 # Jincr
 
 ## Basic data scheme
-Every row in the document table is an incremental operation: add, delete or (for efficiency) snapshot.
+Every row in the document table is an incremental operation: add, delete, replace or (for efficiency) snapshot.
 
 <h1>Table "json_document"</h1>
 
-| Column    | Type                     |
-| --------- | ------------------------ |
-| path      | TEXT                     |
-| value     | JSONB                    |
-| timestamp | timestamp with time zone |
-| info      | TEXT                     |
+| Column    | Type                                    |
+| --------- | --------------------------------------- |
+| kind      | ENUM ('Add','Delete','Replace', 'Snap') |
+| path      | TEXT                                    |
+| value     | JSONB                                   |
+| timestamp | timestamp with time zone                |
+| info      | TEXT                                    |
 
-### Path is NULL
-The `value` must be non-NULL in that case. And this is a snapshot.
+### Snapshot
+The `value` must be non-NULL. `path` is expected to be NULL and ignored.
 
-### Path is not NULL
-- if `value` is NULL delete the whole `path`
-- if `value` is not NULL add the `value` on `path`
+### Replace
+There must be data in the `path`. This data is replaced with `value`.
+
+If `path` leads to nothing operation is ignored.
+
+### Delete
+Deletes data in the `path` if there are some. `value` is expected to be NULL and ignored.
+
+### Add
+Creates `value` in the `path`. If `path` leads to some data they are replaced with `value`.
 
 ### Info
 Is any kind of information about operation.
