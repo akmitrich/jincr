@@ -1,7 +1,4 @@
-use jincr::{
-    Op,
-    op::{self, OpBuilder},
-};
+use jincr::op;
 use serde_json::json;
 
 fn main() {
@@ -67,15 +64,18 @@ fn main() {
         }
       },
       "icon": "chat-dots",
-      "id": 19,
+      "id": 2,
       "type": "Say",
       "x": -681.400432900432,
       "y": 451.5178508455791
     });
     let ops = [
-        Op::builder(op::Kind::Snap).snapshot(start),
-        Op::builder(op::Kind::Add).add("scenarios.answered.items.2", say),
+        op::Kind::Snap.builder().value(start),
+        op::Kind::Add
+            .builder()
+            .path("scenarios.answered.items.2")
+            .value(say),
     ];
-    let doc = jincr::op::document(ops.into_iter().map(OpBuilder::build));
+    let doc = jincr::op::document(ops.into_iter().map(op::Builder::build));
     std::fs::write("../sc.json", serde_json::to_string_pretty(&doc).unwrap()).unwrap();
 }
