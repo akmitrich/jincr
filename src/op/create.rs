@@ -3,7 +3,7 @@ use serde_json::Value;
 
 pub fn document<I>(ops: I) -> Value
 where
-    I: IntoIterator<Item = Op>,
+    I: IntoIterator<Item = super::Op>,
 {
     let mut result = Value::Null;
     for op in ops.into_iter() {
@@ -16,7 +16,7 @@ where
             }
             Kind::Replace => {
                 if let Some(path) = op.path
-                    && let Some(target) = jvars::get_mut(&mut result, path)
+                    && let Some(target) = jvars::basic::get_mut(&mut result, path)
                     && let Some(new) = op.value
                 {
                     *target = new;
@@ -24,14 +24,14 @@ where
             }
             Kind::Delete => {
                 if let Some(path) = op.path {
-                    jvars::delete(&mut result, path);
+                    jvars::basic::delete(&mut result, path);
                 }
             }
             Kind::Add => {
                 if let Some(ref path) = op.path
                     && let Some(value) = op.value
                 {
-                    let _ = jvars::update_or_create(&mut result, path, value)
+                    let _ = jvars::basic::update_or_create(&mut result, path, value)
                         .inspect_err(|e| tracing::error!("updating {path:?}. {e:?}"));
                 }
             }
@@ -41,16 +41,7 @@ where
     result
 }
 
-#[derive(Debug)]
-pub struct Op {
-    kind: Kind,
-    path: Option<String>,
-    value: Option<Value>,
-    timestamp: chrono::DateTime<chrono::Local>,
-    info: Option<String>,
-}
-
-impl Op {
+impl super::Op {
     pub(super) fn new(
         kind: Kind,
         path: Option<String>,
@@ -71,6 +62,7 @@ impl Op {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::Op;
     use serde_json::json;
 
     #[test]

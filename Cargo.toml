@@ -4,9 +4,21 @@ version = "0.0.1"
 edition = "2024"
 
 [dependencies]
-chrono = "0.4.43"
+chrono = "0.4.44"
+deadpool-postgres = { version = "0.14.1" }
 dotenv = "0.15.0"
-jvars = "0.2.1"
+jvars = "0.3.0"
+postgres-types = { version = "0.2.13", features = [
+    "derive",
+    "with-serde_json-1",
+    "with-chrono-0_4",
+] }
 serde_json = "1.0.149"
+thiserror = "2.0.18"
+tokio = { version = "1.50.0", features = ["macros", "rt-multi-thread"] }
+tokio-postgres = { version = "0.7.9", optional = true, features = [
+    "with-chrono-0_4",
+    "with-serde_json-1",
+] }
 tracing = "0.1.44"
-tracing-subscriber = { version = "0.3.22", features = ["env-filter"] }
+tracing-subscriber = { version = "0.3.23", features = ["env-filter"] }

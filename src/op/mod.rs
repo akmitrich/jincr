@@ -2,9 +2,18 @@ mod create;
 mod kind;
 mod operation_builder;
 
-pub use create::{Op, document};
+pub use create::document;
 pub use kind::Kind;
 pub use operation_builder::Builder;
+
+#[derive(Debug)]
+pub struct Op {
+    pub path: Option<String>,
+    pub kind: Kind,
+    pub value: Option<serde_json::Value>,
+    pub timestamp: chrono::DateTime<chrono::Local>,
+    pub info: Option<String>,
+}
 
 #[cfg(test)]
 mod tests {
