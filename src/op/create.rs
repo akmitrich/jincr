@@ -57,6 +57,23 @@ impl super::Op {
             info,
         }
     }
+
+    pub fn from_postgres(row: &deadpool_postgres::tokio_postgres::Row) -> Self {
+        let (path, kind, value, info, timestamp) = (
+            row.get::<_, Option<String>>("path"),
+            row.get::<_, crate::op::Kind>("kind"),
+            row.get::<_, Option<serde_json::Value>>("value"),
+            row.get::<_, Option<String>>("info"),
+            row.get::<_, chrono::DateTime<chrono::Local>>("timestamp"),
+        );
+        Self {
+            path,
+            kind,
+            value,
+            timestamp,
+            info,
+        }
+    }
 }
 
 #[cfg(test)]
