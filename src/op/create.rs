@@ -28,10 +28,9 @@ where
                 }
             }
             Kind::Add => {
-                if let Some(ref path) = op.path
-                    && let Some(value) = op.value
-                {
-                    let _ = jvars::basic::update_or_create(&mut result, path, value)
+                if let Some(value) = op.value {
+                    let path = op.path.unwrap_or_default();
+                    let _ = jvars::basic::update_or_create(&mut result, &path, value)
                         .inspect_err(|e| tracing::error!("updating {path:?}. {e:?}"));
                 }
             }
