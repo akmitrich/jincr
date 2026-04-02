@@ -74,21 +74,16 @@ impl BackendOperate for super::Pg {
         ts: Option<chrono::DateTime<chrono::Local>>,
     ) -> crate::Result<Vec<crate::Op>> {
         let client = self.get_client().await?;
-        let result = if let Some(ts) = ts {
-            client
-                .query(
-                    &format!("SELECT * FROM {name} WHERE timestamp > $1 ORDER BY TIMESTAMP ASC"),
-                    &[&ts],
-                )
-                .await?
-        } else {
-            client
-                .query(&format!("SELECT * FROM {name} ORDER BY TIMESTAMP ASC"), &[])
-                .await?
-        }
-        .iter()
-        .map(crate::Op::from_postgres)
-        .collect();
+        let start = ts.unwrap_or_default();
+        let result = client
+            .query(
+                &format!("SELECT * FROM {name} WHERE timestamp > $1 ORDER BY timestamp ASC"),
+                &[&start],
+            )
+            .await?
+            .iter()
+            .map(crate::Op::from_postgres)
+            .collect();
         Ok(result)
     }
 }
