@@ -7,5 +7,6 @@ pub type Result<T> = std::result::Result<T, Error>;
 pub enum Error {
     ConnectPostgres(#[from] deadpool_postgres::CreatePoolError),
     DeadpoolPool(#[from] deadpool_postgres::PoolError),
+    Io(#[from] std::io::Error),
     Postgres(#[from] tokio_postgres::Error),
 }

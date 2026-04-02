@@ -4,8 +4,10 @@ version = "0.0.1"
 edition = "2024"
 
 [dependencies]
+actix-web = "4.13.0"
 async-trait = "0.1.89"
 chrono = "0.4.44"
+dashmap = "6.1.0"
 deadpool-postgres = { version = "0.14.1" }
 dotenv = "0.15.0"
 jvars = "0.3.0"
@@ -22,6 +24,7 @@ tokio-postgres = { version = "0.7.9", optional = true, features = [
     "with-serde_json-1",
 ] }
 tracing = "0.1.44"
+tracing-actix-web = "0.7.21"
 tracing-subscriber = { version = "0.3.23", features = ["env-filter"] }
 
 [dev-dependencies]
