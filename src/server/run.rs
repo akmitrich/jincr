@@ -1,3 +1,4 @@
+use super::routes;
 use actix_web::web;
 
 pub fn with_listener(listener: tokio::net::TcpListener) -> crate::Result<actix_web::dev::Server> {
@@ -10,7 +11,7 @@ pub fn with_listener(listener: tokio::net::TcpListener) -> crate::Result<actix_w
             .app_data(web::Data::clone(&start_time))
             .app_data(web::JsonConfig::default().limit(1 << 32))
             .service(web::scope("api/v1"))
-        // .service(routes::health)
+            .service(routes::health)
     })
     .listen(listener.into_std()?)?
     .run();

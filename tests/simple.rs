@@ -4,7 +4,7 @@ mod common;
 
 #[tokio::test]
 async fn it_works() {
-    let app = common::setup_test_app().await;
+    let app = common::back::TestBackend::setup().await;
     let db = jincr::backend::Pg::connect_to(&app.database_url).unwrap();
     let name = "test";
     let value = "мама мыла раму";
@@ -19,7 +19,7 @@ async fn it_works() {
 
 #[tokio::test]
 async fn fairy_action() {
-    let app = common::setup_test_app().await;
+    let app = common::back::TestBackend::setup().await;
     let db = jincr::backend::Pg::connect_to(&app.database_url).unwrap();
     let doc = jincr::handle::Document::start(db.clone(), "test")
         .await
@@ -28,7 +28,7 @@ async fn fairy_action() {
         .await
         .unwrap();
     doc.add("action", "мама мыла раму").await.unwrap();
-    doc.replace_with_info("nopath", 42, "hanginig op")
+    doc.replace_with_info("nopath", 42, "hanging op")
         .await
         .unwrap();
     let incr1 = doc.finish().await.unwrap();
