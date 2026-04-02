@@ -1,12 +1,14 @@
+use jincr::backend::BackendOperate;
+
 mod common;
 
 #[tokio::test]
 async fn it_works() {
     let app = common::setup_test_app().await;
-    let db = jincr::db::Manager::connect_to(&app.database_url).unwrap();
+    let db = jincr::backend::Pg::connect_to(&app.database_url).unwrap();
     let name = "test";
     let value = "мама мыла раму";
-    db.create_table(name).await.unwrap();
+    db.start_document(name).await.unwrap();
     db.save_op(name, jincr::op::Kind::Add.builder().value(value).build())
         .await
         .unwrap();
@@ -18,7 +20,7 @@ async fn it_works() {
 #[tokio::test]
 async fn fairy_action() {
     let app = common::setup_test_app().await;
-    let db = jincr::db::Manager::connect_to(&app.database_url).unwrap();
+    let db = jincr::backend::Pg::connect_to(&app.database_url).unwrap();
     let doc = jincr::handle::Document::start(db.clone(), "test")
         .await
         .unwrap();

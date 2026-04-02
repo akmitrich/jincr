@@ -10,7 +10,6 @@ pub struct TestApp {
 
 pub async fn setup_test_app() -> TestApp {
     let (database_url, container) = setup_test_database().await;
-    make_kind_enum(&database_url).await;
     TestApp {
         container,
         database_url,
@@ -33,16 +32,4 @@ async fn setup_test_database() -> (
     let database_url = format!("postgres://postgres:postgres@{host_ip}:{host_port}/postgres");
     println!("now connect to {database_url}");
     (database_url, container)
-}
-
-async fn make_kind_enum(database_url: &str) {
-    let client = jincr::utils::pool_from(database_url)
-        .unwrap()
-        .get()
-        .await
-        .unwrap();
-    client
-        .simple_query("CREATE TYPE kind AS ENUM ('snap', 'replace', 'delete', 'add')")
-        .await
-        .unwrap();
 }

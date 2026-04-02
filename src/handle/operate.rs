@@ -1,6 +1,7 @@
+use crate::backend::BackendOperate;
 use serde_json::Value;
 
-impl super::Document {
+impl<B: BackendOperate> super::Document<B> {
     pub async fn add(&self, path: impl ToString, value: impl Into<Value>) -> crate::Result<()> {
         self.db
             .save_op(
@@ -90,7 +91,9 @@ impl super::Document {
             )
             .await
     }
+}
 
+impl<B: BackendOperate + Send + Sync> super::Document<B> {
     pub async fn snapshot(&self) -> crate::Result<()> {
         let snap = self.db.document(&self.name).await?;
         self.db

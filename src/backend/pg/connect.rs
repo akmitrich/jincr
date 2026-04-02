@@ -1,6 +1,6 @@
 use crate::utils;
 
-impl super::Manager {
+impl super::Pg {
     pub fn connect_env() -> crate::Result<Self> {
         let pg_url = std::env::var("POSTGRES_URL")
             .unwrap_or_else(|_| "postgres://postgres:password@localhost/jsonstore".to_string());

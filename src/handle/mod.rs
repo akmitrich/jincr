@@ -1,7 +1,7 @@
 mod build;
 mod operate;
 
-pub struct Document {
+pub struct Document<B> {
     name: String,
-    db: crate::db::Manager,
+    db: B,
 }
