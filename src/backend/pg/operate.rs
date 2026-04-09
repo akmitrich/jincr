@@ -11,9 +11,9 @@ impl BackendOperate for super::Pg {
             .simple_query("CREATE TYPE kind AS ENUM ('snap', 'replace', 'delete', 'add')")
             .await
             .inspect(|_| tracing::info!("Created type for 'kind' enum"));
-        client
+        if let Err(e) = client
             .simple_query(&format!(
-                "CREATE TABLE IF NOT EXISTS {name}(
+                "CREATE TABLE {name}(
                 path TEXT,
                 kind kind NOT NULL,
                 value JSONB,
@@ -22,7 +22,15 @@ impl BackendOperate for super::Pg {
             )"
             ))
             .await
-            .inspect_err(|e| tracing::error!("creating table `{name}`. {e:?}"))?;
+            .inspect_err(|e| tracing::error!(%name, ?e, "creating table"))
+        {
+            if let Some(code) = e.code()
+                && code == &tokio_postgres::error::SqlState::DUPLICATE_TABLE
+            {
+                return Err(crate::Error::DocumentAlreadyExists(name.to_string()));
+            }
+            return Err(e.into());
+        }
         client
             .simple_query(&format!(
                 "CREATE INDEX IF NOT EXISTS kind_fast_lookup ON {name} USING HASH (kind)"

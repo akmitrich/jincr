@@ -35,3 +35,24 @@ Creates `value` in the `path`. If `path` leads to some data they are replaced wi
 ### Info
 
 Is any kind of information about operation.
+
+## REST API for JSON document
+
+### Start a document
+
+```shell
+POST /api/v1/new/{{name}}
+Content-Type: application/json
+```
+
+Optional body with initial JSON document content.
+
+### Get the document
+
+```shell
+GET /api/v1/json/{{name}}
+```
+
+#### Server replies 200 OK
+
+With `Content-Type: application/json` and the document in reply body.

@@ -16,6 +16,10 @@ impl TestBackend {
             database_url,
         }
     }
+
+    pub fn create_pg(&self) -> jincr::backend::Pg {
+        jincr::backend::Pg::connect_to(&self.database_url).unwrap()
+    }
 }
 async fn setup_test_database() -> (
     String,

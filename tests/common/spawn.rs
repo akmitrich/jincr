@@ -5,10 +5,13 @@ pub struct TestClient {
 }
 
 impl TestClient {
-    pub async fn spawn_server() -> TestClient {
+    pub async fn spawn_server<B>(backend: B) -> TestClient
+    where
+        B: jincr::backend::BackendOperate + Send + Sync + 'static,
+    {
         let lst = tokio::net::TcpListener::bind("0.0.0.0:0").await.unwrap();
         let port = lst.local_addr().unwrap().port();
-        tokio::spawn(jincr::server::run::with_listener(lst).unwrap());
+        tokio::spawn(jincr::server::run::with_listener(lst, backend).unwrap());
         let client = reqwest::Client::new();
         Self { client, port }
     }
