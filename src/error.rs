@@ -1,6 +1,6 @@
 use actix_web::{HttpResponse, http::StatusCode};
 use deadpool_postgres::tokio_postgres;
-use serde_json::json;
+use serde_json::{Value, json};
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -13,12 +13,14 @@ pub enum Error {
     Postgres(#[from] tokio_postgres::Error),
 
     DocumentAlreadyExists(String),
+    NeedDataPath(Value),
 }
 
 impl actix_web::error::ResponseError for Error {
     fn status_code(&self) -> actix_web::http::StatusCode {
         match self {
             Self::DocumentAlreadyExists(_) => StatusCode::UNPROCESSABLE_ENTITY,
+            Self::NeedDataPath(_) => StatusCode::BAD_REQUEST,
             _ => StatusCode::INTERNAL_SERVER_ERROR,
         }
     }

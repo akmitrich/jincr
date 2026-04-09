@@ -32,3 +32,23 @@ pub async fn start_doc<B: BackendOperate>(
     }
     Ok(())
 }
+
+pub async fn add<B: BackendOperate>(
+    name: web::Path<String>,
+    value: web::Json<Value>,
+    query: web::Query<Value>,
+    backend: web::Data<B>,
+) -> crate::Result<()> {
+    tracing::info!(%name, %value, %query, "add");
+    let Some(data_path) = query.get("data_path").and_then(Value::as_str) else {
+        return Err(crate::Error::NeedDataPath(query.0));
+    };
+    let mut op = crate::op::Kind::Add
+        .builder()
+        .path(data_path)
+        .value(value.0);
+    if let Some(info) = query.get("info").and_then(Value::as_str) {
+        op = op.info(info);
+    }
+    backend.save_op(name, op.build()).await
+}

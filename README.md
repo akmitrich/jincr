@@ -41,11 +41,11 @@ Is any kind of information about operation.
 ### Start a document
 
 ```shell
-POST /api/v1/new/{{name}}
+POST /api/v1/{{name}}/new?info=...
 Content-Type: application/json
 ```
 
-Optional body with initial JSON document content.
+Optional request body may come with initial JSON document content.
 
 ### Get the document
 

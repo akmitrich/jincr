@@ -20,7 +20,9 @@ where
             .app_data(web::Data::clone(&backend))
             .app_data(web::JsonConfig::default().limit(1 << 32))
             .service(
-                web::scope("api/v1").route("/new/{name}", web::post().to(routes::start_doc::<B>)),
+                web::scope("api/v1")
+                    .route("/{name}/new", web::post().to(routes::start_doc::<B>))
+                    .route("/{name}/add", web::post().to(routes::add::<B>)),
             )
             .service(routes::health)
     })
