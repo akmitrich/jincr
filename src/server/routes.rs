@@ -52,3 +52,10 @@ pub async fn add<B: BackendOperate>(
     }
     backend.save_op(name, op.build()).await
 }
+
+pub async fn restore_document<B: BackendOperate + Send + Sync>(
+    name: web::Path<String>,
+    backend: web::Data<B>,
+) -> crate::Result<web::Json<Value>> {
+    backend.document(name).await.map(web::Json)
+}

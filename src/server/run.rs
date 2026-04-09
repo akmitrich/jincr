@@ -21,6 +21,7 @@ where
             .app_data(web::JsonConfig::default().limit(1 << 32))
             .service(
                 web::scope("api/v1")
+                    .route("/{name}", web::get().to(routes::restore_document::<B>))
                     .route("/{name}/new", web::post().to(routes::start_doc::<B>))
                     .route("/{name}/add", web::post().to(routes::add::<B>)),
             )
