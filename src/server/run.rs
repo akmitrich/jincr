@@ -23,7 +23,8 @@ where
                 web::scope("api/v1")
                     .route("/{name}", web::get().to(routes::restore_document::<B>))
                     .route("/{name}/new", web::post().to(routes::start_doc::<B>))
-                    .route("/{name}/add", web::post().to(routes::add::<B>)),
+                    .route("/{name}/add", web::post().to(routes::add::<B>))
+                    .route("/{name}/replace", web::post().to(routes::replace::<B>)),
             )
             .service(routes::health)
     })
